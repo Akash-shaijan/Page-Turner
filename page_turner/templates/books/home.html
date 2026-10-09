@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    {% if search_results %}
+    <section id="search-results" class="glass-section py-5 my-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <h2 class="section-title">Search results for "{{ query }}"</h2>
+            </div>
+
+            <div class="row g-4">
+                {% for book in search_results %}
+                <div class="col-lg-3 col-md-4 col-sm-6 text-center">
+                    <div class="book-scene">
+                        <div class="book-wrap">
+                            <div class="book-entity">
+                                <div class="book-inside-pages">
+                                    <div class="icon-grid-inside">
+                                        <a href="{% url 'details' book.uuid %}" class="page-link" title="View Detail">
+                                            <div class="icon-circle"><i class="bi bi-book-half"></i></div>
+                                            <span>READ MORE</span>
+                                        </a>
+
+                                        {% if user.is_staff %}
+                                        <div class="admin-divider"><span>Staff Actions</span></div>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <a href="{% url 'bookedit' book.uuid %}" class="page-link small-link">
+                                                <div class="icon-circle sm"><i class="bi bi-pencil"></i></div>
+                                            </a>
+                                            <a href="{% url 'detele' book.uuid %}" class="page-link small-link text-danger">
+                                                <div class="icon-circle sm"><i class="bi bi-trash3"></i></div>
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="paper-texture"></div>
+                                </div>
+
+                                <div class="book-cover">
+                                    <div class="cover-front">
+                                        {% if book.cover_image %}
+                                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                                        {% endif %}
+                                        <div class="spine-highlight"></div>
+                                    </div>
+                                    <div class="cover-back"></div>
+                                </div>
+                                <div class="book-thickness"></div>
+                            </div>
+                        </div>
+                        <div class="px-2 mt-3">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">{{ book.title }}</h3>
+                            <p style="color:#8a817c; font-size:0.9rem; font-weight:600;">{{ book.author }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <section id="billboard" class="position-relative">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    
+                    {% if request.user.is_authenticated %}
+                    <div class="modern-profile-card overflow-hidden mb-5">
+                        <div class="profile-accent-bar"></div>
+                        <div class="p-4 p-md-5">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <div class="d-flex align-items-center gap-4 flex-column flex-md-row text-center text-md-start">
+                                        <div class="avatar-wrapper">
+                                            <div class="avatar-circle">
+                                                {{ request.user.display_name|slice:":1"|upper }}
+                                            </div>
+                                            {% if last_sub and last_sub.is_active %}
+                                                <div class="status-indicator active" title="Active Subscription"></div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <span class="text-uppercase tracking-wider text-muted small fw-bold">Library Member</span>
+                                            <h2 class="display-6 fw-bold mb-1" style="color: #2b2d42;">{{ request.user.display_name }}</h2>
+                                            <p class="text-muted mb-0"><i class="bi bi-envelope-at me-2"></i>{{ request.user.email }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 my-4 my-lg-0 border-start-md px-lg-4">
+                                    <div class="membership-box">
+                                        <p class="small text-muted text-uppercase mb-2 fw-bold">Membership</p>
+                                        {% if not request.user.is_staff %}
+                                            {% if last_sub and last_sub.is_active %}
+                                                <h5 class="text-success fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>PREMIUM</h5>
+                                                <small class="text-muted">Unlimited Access</small>
+                                                <p class="small text-muted">
+                                                Valid till: <strong>{{ end_date|date:"d M Y" }}</strong>
+                                                </p>
+                                            {% else %}
+                                                <h5 class="text-secondary fw-bold mb-0">STANDARD</h5>
+                                                <a href="{% url 'subscription_plans' %}" class="small text-decoration-none text-primary fw-bold">Upgrade Now →</a>
+                                            {% endif %}
+                                        {% else %}
+                                            <h5 class="text-danger fw-bold mb-0"><i class="bi bi-briefcase me-2"></i>STAFF ADMIN</h5>
+                                            <small class="text-muted">Library Management</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="d-grid gap-2">
+                                        {% if not request.user.is_staff %}
+                                            <a href="{% url 'my_rents' %}" class="btn btn-dark py-2 rounded-pill shadow-sm">
+                                                <i class="bi bi-collection me-2"></i>My Bookshelf
+                                            </a>
+                                            {% if not last_sub or not last_sub.is_active %}
+                                                <a href="{% url 'subscription_plans' %}" class="btn btn-danger py-2 rounded-pill shadow-sm fw-bold">Subscribe</a>
+                                            {% endif %}
+                                        {% else %}
+                                            <a href="{% url 'admin_rented_details' %}" class="btn btn-danger py-2 rounded-pill shadow-sm">Management Detail</a>
+                                            <a href="{% url 'rent_requests' %}" class="btn btn-outline-danger py-2 rounded-pill fw-bold position-relative">
+                                                Pending Requests
+                                                {% if new_requests_count > 0 %}
+                                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light shadow-sm req-count-badge">
+                                                    {{ new_requests_count }}
+                                                </span>
+                                                {% endif %}
+                                            </a>
+                                            <a href="{% url 'users-list' %}" class="btn btn-danger py-2 rounded-pill shadow-sm">Manage Users</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="modern-profile-card overflow-hidden mb-5 guest-card">
+                        <div class="profile-accent-bar guest-accent"></div>
+                        <div class="p-4 p-md-5">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6 text-center text-lg-start">
+                                    <span class="text-uppercase tracking-wider text-muted small fw-bold">Welcome to our Page Turner</span>
+                                    <h2 class="display-6 fw-bold mb-2 guest-title">Your Journey Starts Here</h2>
+                                    <p class="text-muted mb-4">Experience a modern way of reading. Subscribe to access our vast collection of physical and digital resources.</p>
+                                    
+                                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                                        <a href="{% url 'login' %}" class="btn btn-outline-dark px-4 py-2 rounded-pill fw-bold">Login</a>
+                                        <a href="{% url 'signup' %}" class="btn btn-dark px-4 py-2 rounded-pill shadow-sm fw-bold">Get Started</a>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 mt-4 mt-lg-0">
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="feature-box guest-feature p-3 text-center">
+                                                <i class="bi bi-journal-check fs-3 mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Rentals</h6>
+                                                <p class="small text-muted mb-0">Physical Books</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="feature-box guest-feature p-3 text-center">
+                                                <i class="bi bi-cloud-download fs-3 mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Digital</h6>
+                                                <p class="small text-muted mb-0">Instant Access</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="feature-box guest-feature p-3 text-center">
+                                                <i class="bi bi-shield-lock fs-3 mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Secure</h6>
+                                                <p class="small text-muted mb-0">Safe Payments</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="feature-box guest-feature p-3 text-center">
+                                                <i class="bi bi-stars fs-3 mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Premium</h6>
+                                                <p class="small text-muted mb-0">Exclusive Perks</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            .guest-accent { background: linear-gradient(90deg, #2b2d42, #8d99ae) !important; }
+                            .guest-title { color: #2b2d42; }
+                            .guest-feature {
+                                background: rgba(43, 45, 66, 0.05) !important;
+                                border-radius: 20px;
+                                border: 1px solid rgba(43, 45, 66, 0.1) !important;
+                            }
+                            .guest-feature i { color: #2b2d42; }
+                        </style>
+                    </div>
+                    {% endif %}
+
+                    <div class="hero-section position-relative" style="height: 480px; overflow: hidden; border-radius: 20px;">
+                        <div class="banner-content position-absolute top-50 translate-middle-y ps-5" style="z-index: 10; max-width: 600px;">
+                            <h2 class="banner-title display-4 fw-bold text-white mb-3">The Smart Library</h2>
+                            <p class="fs-5 text-white mb-4" style="font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.4);">
+                                “A room without books is like a body without a soul.” — Cicero
+                            </p>
+                            <div class="btn-wrap">
+                                <a href="#featured-books" class="btn btn-outline-light px-4 py-2 rounded-pill">Explore Vault</a>
+                            </div>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=2000" 
+                             alt="Library Background" 
+                             style="height: 100%; width: 100%; object-fit: cover; filter: brightness(0.7);">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="featured-books" class="glass-section py-5 my-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <div class="title">
+                    <span style="color: #8a817c; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">Quality Items</span>
+                </div>
+                <h2 class="section-title">Featured Books</h2>
+            </div>
+
+            <div class="row g-4">
+                {% for book in books %}
+                <div class="col-lg-3 col-md-4 col-sm-6 text-center">
+                    <div class="book-scene">
+                        <div class="book-wrap">
+                            <div class="book-entity">
+                                <div class="book-inside-pages">
+                                    <div class="icon-grid-inside">
+                                        <a href="{% url 'details' book.uuid %}" class="page-link" title="View Detail">
+                                            <div class="icon-circle"><i class="bi bi-book-half"></i></div>
+                                            <span>READ MORE</span>
+                                        </a>
+
+                                        {% if user.is_staff %}
+                                        <div class="admin-divider"><span>Staff Actions</span></div>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <a href="{% url 'bookedit' book.uuid %}" class="page-link small-link" title="Edit">
+                                                <div class="icon-circle sm"><i class="bi bi-pencil"></i></div>
+                                            </a>
+                                            <a href="{% url 'detele' book.uuid %}" class="page-link small-link text-danger" title="Delete">
+                                                <div class="icon-circle sm"><i class="bi bi-trash3"></i></div>
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="paper-texture"></div>
+                                </div>
+
+                                <div class="book-cover">
+                                    <div class="cover-front">
+                                        {% if book.cover_image %}
+                                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                                        {% endif %}
+                                        <div class="spine-highlight"></div>
+                                    </div>
+                                    <div class="cover-back"></div>
+                                </div>
+                                <div class="book-thickness"></div>
+                            </div>
+                        </div>
+
+                        <div class="px-2 mt-3">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: #222; margin-bottom: 2px;">{{ book.title }}</h3>
+                            <p style="color: #8a817c; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">{{ book.author }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* BASE & LAYOUT */
+        body {
+            background-color: #d6d6d6 !important; 
+            color: #2b2d42;
+        }
+
+        .glass-section {
+            background-color: #edebe9;
+            border-radius: 30px;
+            margin-left: 15px;
+            margin-right: 15px;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .req-count-badge {
+            font-size: 0.7rem;
+            padding: 0.4em 0.6em;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 10px rgba(220, 53, 69, 0.4); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .modern-profile-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        }
+        .profile-accent-bar {
+            height: 6px;
+            background: linear-gradient(90deg, #5e503f, #a98467, #d4a373);
+            width: 100%;
+        }
+        .avatar-wrapper { position: relative; width: 90px; height: 90px; }
+        .avatar-circle {
+            width: 90px; height: 90px;
+            background: #5e503f;
+            color: #fefae0;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            box-shadow: 0 10px 20px rgba(94, 80, 63, 0.2);
+            transform: rotate(-3deg);
+        }
+        .status-indicator {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 24px;
+            height: 24px;
+            background: #2ecc71;
+            border: 4px solid #fff;
+            border-radius: 50%;
+        }
+        .status-indicator.active::after {
+            content: '';
+            display: block;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            background: #2ecc71;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            70% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(0.95); opacity: 0; }
+        }
+        .border-start-md { border-left: 1px solid rgba(0,0,0,0.05); }
+        @media (max-width: 991px) { .border-start-md { border-left: none; } }
+
+        /* BOOK COMPONENT (Original Styles) */
+        .book-scene { perspective: 1500px; cursor: pointer; }
+        .book-wrap { position: relative; height: 380px; width: 100%; display: flex; align-items: center; justify-content: center; }
+        .book-entity {
+            position: relative; width: 190px; height: 270px;
+            transform-style: preserve-3d; transform: rotateY(-15deg);
+            transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .book-cover {
+            position: absolute; width: 100%; height: 100%;
+            transform-style: preserve-3d; transform-origin: left;
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1); z-index: 5;
+        }
+        .cover-front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; z-index: 2; }
+        .cover-front img {
+            width: 100%; height: 100%; object-fit: cover;
+            border-radius: 2px 4px 4px 2px; box-shadow: 8px 10px 20px rgba(0,0,0,0.15);
+        }
+        .spine-highlight {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
+            background: linear-gradient(to right, rgba(255,255,255,0.15), transparent);
+        }
+        .cover-back {
+            position: absolute; width: 100%; height: 100%;
+            background: #e3d5ca; transform: rotateY(180deg);
+            backface-visibility: hidden; border: 1px solid #000;
+        }
+        .book-inside-pages {
+            position: absolute; width: 96%; height: 96%; top: 2%; left: 2%; 
+            background: linear-gradient(135deg, #fefae0 0%, #f7ede2 50%, #e3d5ca 100%);
+            z-index: 1; border: 1px solid #000;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 12px 0 15px rgba(0,0,0,0.1);
+        }
+        .icon-grid-inside { text-align: center; z-index: 2; width: 100%; }
+        .page-link { text-decoration: none !important; color: #5e503f; display: inline-block; transition: 0.3s; }
+        .icon-circle {
+            width: 50px; height: 50px; background: rgba(255, 255, 255, 0.9); 
+            border: 1.5px solid #5e503f; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 5px; font-size: 18px; transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: #5e503f;
+        }
+        .icon-circle.sm { width: 32px; height: 32px; font-size: 14px; }
+        .page-link span { font-size: 9px; font-weight: 800; letter-spacing: 1px; color: #5e503f; }
+        .book-scene:hover .book-entity { transform: rotateY(0deg) scale(1.05); }
+        .book-scene:hover .book-cover { transform: rotateY(-145deg); }
+        .page-link:hover .icon-circle { background: #5e503f; color: #fefae0; transform: translateY(-3px); }
+        .admin-divider {
+            margin: 15px 0 8px; font-size: 8px; text-transform: uppercase; color: #a98467;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .admin-divider::before, .admin-divider::after { content: ""; flex: 1; height: 1px; background: #d4a373; opacity: 0.3; }
+        .book-thickness {
+            position: absolute; top: 2%; bottom: 2%; right: -10px;
+            width: 10px; background: linear-gradient(90deg, #fefae0 0%, #e3d5ca 100%);
+            transform: rotateY(90deg);
+        }
+        .paper-texture {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, rgba(94,80,63,0.05) 0%, transparent 10%, transparent 90%, rgba(94,80,63,0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* FEATURE BOX HOVER */
+        .feature-box {
+            transition: all 0.3s ease;
+        }
+        .feature-box:hover {
+            transform: translateY(-5px);
+            background: rgba(94, 80, 63, 0.1) !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+    </style>
+
+{% endblock %}

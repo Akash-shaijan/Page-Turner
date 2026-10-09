@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<main class="main">
+
+  <section class="section position-relative"
+           style="padding-top:120px;
+                  min-height:100vh;
+                  background:url('/static/images/book-bg-2.jpg') center/cover no-repeat;">
+
+    <!-- Soft overlay -->
+    <div style="position:absolute; inset:0;
+                background:linear-gradient(to right,
+                rgba(0,0,0,0.55),
+                rgba(0,0,0,0.25));"></div>
+
+    <div class="container position-relative">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+          <!-- GLASS CARD -->
+          <div class="card shadow-lg border-0 rounded-4"
+               style="background:rgba(255,255,255,0.18);
+                      backdrop-filter:blur(12px);
+                      -webkit-backdrop-filter:blur(12px);
+                      border:1px solid rgba(255,255,255,0.35);">
+
+            <div class="card-body p-4 p-md-5">
+
+              <h3 class="text-center mb-4 fw-bold" style="color:#1f2933;">
+                {{ page }}
+              </h3>
+
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                  <!-- Book Title -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Book Title</label>
+                    {{ form.title }}
+                  </div>
+
+                  <!-- Author -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Author</label>
+                    {{ form.author }}
+                  </div>
+
+                  <!-- Genres -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Genres</label>
+                    {{ form.genres }}
+                  </div>
+
+                  <!-- Language -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Language</label>
+                    {{ form.language }}
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-12">
+                    <label class="form-label fw-semibold">Description</label>
+                    {{ form.description }}
+                  </div>
+
+                  <!-- Digital Version -->
+                  <div class="col-md-6">
+                    <div class="form-check mt-3">
+                      {{ form.has_digital }}
+                      <label class="form-check-label fw-semibold">
+                        Digital Version Available
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Digital File (FIXED: FULL WIDTH BELOW) -->
+                  <div class="col-12 mt-2" id="digital-file-wrapper">
+                    <label class="form-label fw-semibold">Digital File</label>
+                    {{ form.digital_file }}
+                    <small class="text-muted">
+                      Upload PDF / EPUB file
+                    </small>
+                  </div>
+
+                  <!-- Physical Version -->
+                  <div class="col-md-6">
+                    <div class="form-check mt-3">
+                      {{ form.has_physical }}
+                      <label class="form-check-label fw-semibold">
+                        Physical Copy Available
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Total Copies -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Total Copies</label>
+                    {{ form.total_copies }}
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Available Copies</label>
+                    {{ form.available_copies }}
+                  </div>
+
+                  <!-- Cover Image -->
+                  <div class="col-12">
+                    <label class="form-label fw-semibold">Book Cover Image</label>
+                    {{ form.cover_image }}
+                  </div>
+
+                  <!-- Submit -->
+                  <div class="col-12 text-center mt-3">
+                    <button type="submit"
+                            class="btn btn-dark px-5 py-2 rounded-pill">
+                      Create Book
+                    </button>
+                  </div>
+
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Digital file toggle -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const hasDigital = document.getElementById("id_has_digital");
+  const digitalWrapper = document.getElementById("digital-file-wrapper");
+
+  function toggleDigitalFile() {
+    digitalWrapper.style.display = hasDigital.checked ? "block" : "none";
+  }
+
+  toggleDigitalFile();
+  hasDigital.addEventListener("change", toggleDigitalFile);
+});
+</script>
+
+{% endblock %}

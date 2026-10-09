@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block main %}
+
+<section class="membership-section">
+    <div class="container">
+        <div class="row mb-5 text-center">
+            <div class="col-lg-8 mx-auto">
+                <span class="premium-badge">Exclusive Access</span>
+                <h1 class="display-4 fw-800 text-dark mt-3">Membership Plans</h1>
+                <p class="lead text-dark">Unlock the full potential of our smart library with physical rentals and digital access.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            {% for plan in plans %}
+            <div class="col-lg-4 col-md-6">
+                <div class="library-card tier-{{ forloop.counter }}">
+                    <div class="card-header-gradient"></div>
+                    
+                    <div class="card-content">
+                        <div class="mb-4">
+                            <h3 class="plan-name">{{ plan.name }}</h3>
+                            <div class="price-container">
+                                <span class="currency">₹</span>
+                                <span class="price-value">{{ plan.price }}</span>
+                                <span class="duration">/ {{ plan.duration_days }} days</span>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <ul class="feature-list">
+                            <li><i class="bi bi-check2-circle"></i> Physical Book Rentals</li>
+                            <li><i class="bi bi-check2-circle"></i> Digital Library Access</li>
+                            <li><i class="bi bi-check2-circle"></i> Smart Fine Calculation</li>
+                            <li><i class="bi bi-check2-circle"></i> Priority Support</li>
+                        </ul>
+
+                        <div class="mt-auto">
+                            <a href="{% url 'subscription_pay' plan.uuid %}" class="subscribe-btn">
+                                Subscribe Now
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="ms-2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+    .membership-section {
+        background-color: #f9fafb;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        padding: 100px 0;
+        min-height: 100vh;
+    }
+
+    .fw-800 { font-weight: 800; letter-spacing: -1.5px; }
+
+    .premium-badge {
+        background: #eff6ff;
+        color: #2563eb;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Card Styling */
+    .library-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 28px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-content {
+        padding: 45px 35px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        z-index: 2;
+    }
+
+    /* Color Accents per Tier */
+    .tier-1 { --accent-color: #2563eb; } /* Blue */
+    .tier-2 { --accent-color: #7c3aed; border-width: 2px; } /* Purple (Most Popular) */
+    .tier-3 { --accent-color: #db2777; } /* Pink/Crimson */
+
+    .card-header-gradient {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: var(--accent-color);
+    }
+
+    .library-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.12);
+        border-color: var(--accent-color);
+    }
+
+    /* Typography */
+    .plan-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+
+    .price-container {
+        display: flex;
+        align-items: baseline;
+    }
+
+    .currency { font-size: 1.5rem; font-weight: 700; color: #111827; }
+    .price-value { font-size: 3.5rem; font-weight: 800; color: #111827; letter-spacing: -2px; line-height: 1; }
+    .duration { font-size: 0.95rem; color: #6b7280; font-weight: 500; margin-left: 8px; }
+
+    .divider {
+        height: 1px;
+        background: #f3f4f6;
+        margin: 25px 0;
+    }
+
+    /* Features */
+    .feature-list { list-style: none; padding: 0; margin-bottom: 35px; }
+    .feature-list li {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        color: #4b5563;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .feature-list i {
+        color: var(--accent-color);
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    /* The Button */
+    .subscribe-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #111827;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+    .subscribe-btn:hover {
+        background-color: var(--accent-color);
+        color: #ffffff;
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .subscribe-btn svg {
+        transition: transform 0.3s ease;
+    }
+
+    .subscribe-btn:hover svg {
+        transform: translateX(5px);
+    }
+</style>
+
+{% endblock %}

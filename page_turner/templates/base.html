@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Page Turner | Smart Library</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" type="text/css" href="/static/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+    <style>
+        :root {
+            --brand-color: #1a1a1a;
+            --accent-color: #8a817c;
+            --soft-bg: #f8f9fa;
+            --error-red: #d90429;
+            --success-green: #2b9348;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--soft-bg);
+        }
+
+        /* 1. BRAND PRIORITY HEADER */
+        #header-wrap {
+            background: #d6d6d6;
+            padding: 25px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .brand-link {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+
+        .brand-link:hover { opacity: 0.85; }
+
+        .site-logo {
+            height: 85px; 
+            width: auto;
+            margin-right: 20px;
+        }
+
+        .brand-name {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--brand-color);
+            letter-spacing: -1.5px;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        /* 2. MODERN FLOATING SEARCH */
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .search-box .form-control {
+            background: #f1f3f5;
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            height: 52px;
+            padding-left: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .search-box .form-control:focus {
+            background: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 20px rgba(138, 129, 124, 0.15);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 1.2rem;
+            z-index: 5;
+        }
+
+        /* 3. ICON NAVIGATION */
+        .utility-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-icon-btn {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: var(--accent-color);
+            background: transparent;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon-btn:hover {
+            background: #f8f9fa;
+            color: var(--brand-color);
+            transform: translateY(-2px);
+        }
+
+        /* 4. PREMIUM DROPDOWN */
+        #loginMenu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            min-width: 220px;
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 10px;
+            z-index: 1001;
+        }
+
+        .dropdown-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #444;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-link:hover {
+            background: var(--soft-bg);
+            color: var(--accent-color);
+        }
+
+        /* 5. TOAST NOTIFICATION */
+        .toast-container {
+            z-index: 2000;
+            bottom: 30px !important;
+        }
+
+        .custom-toast {
+            min-width: 280px;
+            color: white !important;
+            border-radius: 12px !important;
+            border: none !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            font-weight: 600;
+        }
+
+        .toast-bg-error { background-color: var(--error-red) !important; }
+        .toast-bg-success { background-color: var(--success-green) !important; }
+        .toast-bg-info { background-color: var(--brand-color) !important; }
+
+        .toast-body {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* RESPONSIVE OVERRIDES */
+        @media (max-width: 992px) {
+            .brand-name { font-size: 1.8rem; }
+            .site-logo { height: 60px; }
+            .search-box { max-width: 100%; }
+        }
+
+        @media (max-width: 576px) {
+            .brand-name { font-size: 1.3rem; }
+            .site-logo { height: 45px; margin-right: 10px; }
+            .nav-icon-btn { width: 40px; height: 40px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header id="header-wrap">
+    <div class="container-fluid px-lg-5">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-5 col-8">
+                <a href="{% url 'home' %}" class="brand-link">
+                    <img src="/static/images/page-turner-logo.png" alt="Logo" class="site-logo">
+                    <h1 class="brand-name">PAGE  TURNER</h1>
+                </a>
+            </div>
+
+            <div class="col-lg-3 col-4 order-lg-3">
+                <div class="utility-nav justify-content-end">
+                    
+                    <a href="{% url 'home' %}" class="nav-icon-btn" title="Home">
+                        <i class="bi bi-house-door"></i>
+                    </a>
+
+                    {% if user.is_staff %}
+                    <a href="{% url 'bookcreate' %}" class="nav-icon-btn" title="Add Book">
+                        <i class="bi bi-plus-square"></i>
+                    </a>
+                    {% endif %}
+
+                    <div class="position-relative">
+                        <a href="javascript:void(0);" onclick="toggleLoginMenu(event)" class="nav-icon-btn" id="accountTrigger">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                        <div id="loginMenu">
+                            {% if user.is_authenticated %}
+                                <div class="px-3 py-2 small fw-bold text-muted text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">
+                                    User: {{ user.display_name }}
+                                </div>
+                                <hr class="my-1 opacity-5">
+                                <a href="{% url 'logout' %}" class="dropdown-link text-danger">
+                                    <i class="bi bi-box-arrow-right me-3"></i>Logout
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="dropdown-link">
+                                    <i class="bi bi-box-arrow-in-right me-3"></i>Login
+                                </a>
+                                <a href="{% url 'signup' %}" class="dropdown-link text-primary">
+                                    <i class="bi bi-person-plus me-3"></i>Join Library
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-12 order-3 order-lg-2 mt-3 mt-lg-0 search-col">
+                <form action="{% url 'home' %}" method="get" class="m-0">
+                    <div class="search-box mx-auto">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="query" class="form-control" 
+                               placeholder="Search library collection..." 
+                               value="{{ query|default:'' }}">
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<main>
+    {% block main %}
+    {% endblock %}
+</main>
+
+<footer style="background-color: #bfc0c0;" class=" border-top py-5 mt-5">
+    <div class="container text-center">
+        <p class="text-muted small fw-bold mb-0" style="letter-spacing: 2px;">
+            © 2026 PAGE TURNER SMART LIBRARY SYSTEM
+        </p>
+    </div>
+</footer>
+
+{% if messages %}
+    <div id="django-messages" style="display: none;">
+        {% for message in messages %}
+            <span class="msg-data" data-text="{{ message }}" data-tags="{{ message.tags }}"></span>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
+    <div id="liveToast" class="toast custom-toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body">
+            <i id="toastIcon" class="bi bi-info-circle-fill"></i>
+            <span id="toastMessage"></span>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/jquery-1.11.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function toggleLoginMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById("loginMenu");
+        const isOpen = menu.style.display === "block";
+        menu.style.display = isOpen ? "none" : "block";
+    }
+
+    document.addEventListener("click", function (event) {
+        const menu = document.getElementById("loginMenu");
+        const trigger = document.getElementById("accountTrigger");
+        if (menu && !menu.contains(event.target) && !trigger.contains(event.target)) {
+            menu.style.display = "none";
+        }
+    });
+
+    function triggerToast(text, tags) {
+        const toastEl = document.getElementById('liveToast');
+        const msgEl = document.getElementById('toastMessage');
+        const iconEl = document.getElementById('toastIcon');
+
+        toastEl.classList.remove('toast-bg-error', 'toast-bg-success', 'toast-bg-info');
+        
+        if (tags.includes('error') || tags.includes('danger')) {
+            toastEl.classList.add('toast-bg-error');
+            iconEl.className = "bi bi-exclamation-octagon-fill me-2";
+        } else if (tags.includes('success')) {
+            toastEl.classList.add('toast-bg-success');
+            iconEl.className = "bi bi-check-circle-fill me-2";
+        } else {
+            toastEl.classList.add('toast-bg-info');
+            iconEl.className = "bi bi-info-circle-fill me-2";
+        }
+
+        msgEl.textContent = text;
+        const bsToast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        bsToast.show();
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const messageElements = document.querySelectorAll('.msg-data');
+        messageElements.forEach(el => {
+            triggerToast(el.getAttribute('data-text'), el.getAttribute('data-tags'));
+        });
+    });
+</script>
+
+</body>
+</html>

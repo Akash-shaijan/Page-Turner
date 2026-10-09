@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<main class="main">
+  <section class="section-custom">
+    <div class="container-fluid px-5"> 
+      <h2 class="mb-4 fw-bold">Pending Rent Requests</h2>
+
+      {% if rents %}
+        <div class="table-responsive shadow-sm" style="border-radius: 10px; overflow: hidden;">
+          <table class="table table-bordered bg-white mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>User Information</th>
+                <th>Book Title</th>
+                <th>Requested On</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rent in rents %}
+              <tr>
+                <td>
+                  <span class="user-text">{{ rent.user.get_full_name }}</span>
+                  <span class="email-text">{{ rent.user.email }}</span>
+                </td>
+                
+                <td class="book-title-small">{{ rent.book.title }}</td>
+                
+                <td class="date-text">{{ rent.request_date|date:"d M Y, h:i A" }}</td>
+                
+                <td class="action-cell">
+                  <form method="post" action="{% url 'rent_request_action' rent.id 'approve' %}" style="display:inline-block; margin:0;">
+                    {% csrf_token %}
+                    <button class="btn btn-pill btn-approve">Approve</button>
+                  </form>
+
+                  <form method="post" action="{% url 'rent_request_action' rent.id 'reject' %}" style="display:inline-block; margin:0;">
+                    {% csrf_token %}
+                    <button class="btn btn-pill btn-reject">Reject</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center p-5 bg-white border rounded">
+          <p class="text-muted mb-0" style="font-size: 1.1rem; font-weight: 600;">No pending requests at the moment.</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+
+<style>
+  .section-custom {
+    background-color: #f2f2f2; 
+    padding-top: 120px; 
+    min-height: 100vh;
+  }
+
+  .table td, .table th {
+    padding: 20px 24px !important; 
+    vertical-align: middle;
+    white-space: nowrap; 
+  }
+
+  .user-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #212529;
+  }
+
+  .email-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5a6268;
+    margin-left: 12px;
+  }
+
+  .book-title-small {
+    font-size: 1rem;
+    color: #444;
+    font-weight: 600;
+  }
+
+  .date-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #444;
+  }
+
+  .action-cell {
+    text-align: right;
+    min-width: 240px; 
+  }
+
+  .btn-pill {
+    border-radius: 50px;
+    padding: 8px 22px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    background-color: transparent;
+    display: inline-block;
+  }
+
+  .btn-approve {
+    border: 2px solid #198754;
+    color: #198754;
+  }
+  .btn-approve:hover {
+    background-color: #198754 !important;
+    color: white !important;
+  }
+
+  .btn-reject {
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    margin-left: 8px; 
+  }
+  .btn-reject:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<main class="main">
+
+  <section class="section position-relative"
+           style="padding-top:120px;
+                  min-height:100vh;
+                  background:url('/static/images/book-bg-2.jpg') center/cover no-repeat;">
+
+    <div style="position:absolute; inset:0;
+                background:linear-gradient(to right,
+                rgba(0,0,0,0.55),
+                rgba(0,0,0,0.25));"></div>
+
+    <div class="container position-relative ">
+      <div class="row justify-content-center">
+        <div class="col-lg-11">
+
+          <div class="row g-5 p-4 p-md-5 mb-5"
+               style="background:rgba(255,255,255,0.18);
+                      backdrop-filter:blur(12px);
+                      -webkit-backdrop-filter:blur(12px);
+                      border:1px solid rgba(255,255,255,0.35);
+                      border-radius:22px;
+                      box-shadow:0 18px 50px rgba(0,0,0,0.35);
+                      color:#1f2933;">
+
+            <!-- Book Image -->
+            <div class="col-md-4 text-center">
+              {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}"
+                     class="img-fluid shadow"
+                     style="max-width:300px; max-height:420px; border-radius:16px;">
+              {% else %}
+                <img src="/static/assets/img/default-book.png"
+                     class="img-fluid shadow"
+                     style="max-width:300px; max-height:420px; border-radius:16px;">
+              {% endif %}
+            </div>
+
+            <!-- Book Details -->
+            <div class="col-md-8">
+
+              <h1 class="fw-bold mb-3" style="font-size:42px;">
+                {{ book.title }}
+              </h1>
+
+              <div class="d-flex flex-wrap gap-2 mt-2 mb-3">
+                <span class="badge" style="background:rgba(255,255,255,0.35); border:1px solid rgba(255,255,255,0.6);">
+                  <i class="bi bi-person-fill"></i> {{ book.author.name }}
+                </span>
+                <span class="badge" style="background:rgba(255,255,255,0.35); border:1px solid rgba(255,255,255,0.6);">
+                  <i class="bi bi-translate"></i> {{ book.language.name }}
+                </span>
+              </div>
+              <!-- Genres -->
+              <div class="mb-3">
+                <p class="fw-semibold fs-5">Genres:</p>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for genre in book.genres.all %}
+                    <span class="badge" style="background:rgba(255,255,255,0.30); border:1px solid rgba(255,255,255,0.6);">
+                      {{ genre.name }}
+                    </span>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-3">
+                <p style="line-height:1.8;">{{ book.description }}</p>
+              </div>
+
+              <!-- ✅ AVAILABLE COPIES (JUST BELOW DESCRIPTION) -->
+              {% if book.has_physical %}
+                <div class="mb-4">
+                  {% if book.available_copies > 0 %}
+                    <span class="badge bg-success">
+                      📦 Available Copies: {{ book.available_copies }}
+                    </span>
+                  {% else %}
+                    <span class="badge bg-danger">
+                      ❌ Currently Out of Stock
+                    </span>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              <!-- Action Buttons -->
+              <div class="mb-4 d-flex align-items-center flex-wrap gap-3">
+
+                {% if user.is_authenticated %}
+                  {% if user.is_staff or last_sub and last_sub.is_active %}
+                    
+                    {% if book.has_physical %}
+                      {% if book.available_copies > 0 %}
+                        <form id="rent-form" method="post" action="{% url 'rent_book' book.uuid %}" style="display: none;">
+                          {% csrf_token %}
+                        </form>
+                        <a href="javascript:void(0);" 
+                           onclick="document.getElementById('rent-form').submit();"
+                           class="effect btn fw-bold shadow d-inline-flex align-items-center justify-content-center"
+                           style="background-color: grey; color:white; width: 150px; height: 48px; border-radius:10px;">
+                          📖 Rent
+                        </a>
+                      {% else %}
+                        <a class="btn fw-bold shadow d-inline-flex align-items-center justify-content-center disabled"
+                           style="background-color: grey; color:white; width: 150px; height: 48px; border-radius:10px; opacity: 0.6;">
+                          📖 Out
+                        </a>
+                      {% endif %}
+                    {% endif %}
+
+                    {% if book.has_digital %}
+                      <a href="{% url 'bookread' book.uuid %}"
+                         class="effect btn fw-bold shadow d-inline-flex align-items-center justify-content-center"
+                         style="background-color: grey; color:white; width: 150px; height: 48px; border-radius:10px;">
+                        📖 Read
+                      </a>
+                    {% endif %}
+
+                  {% else %}
+                    <a href="{% url 'subscription_plans' %}"
+                       class="btn fw-bold shadow d-inline-flex align-items-center justify-content-center px-4"
+                       style="background-color:rgba(255, 0, 0, 0.793); color:white; height: 48px; border-radius:10px;">
+                      🔒 Subscribe to Continue
+                    </a>
+                  {% endif %}
+
+                {% else %}
+                  <a href="{% url 'login' %}?next={{ request.get_full_path }}"
+                     class="btn fw-bold shadow d-inline-flex align-items-center justify-content-center"
+                     style="background-color: grey; color:white; width: 150px; height: 48px; border-radius:10px;">
+                    🔐 Login
+                  </a>
+                {% endif %}
+
+              </div>
+
+              <!-- Rent Status -->
+              {% if rent %}
+                <div class="mt-3 p-3 rounded"
+                     style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                  <p class="mb-1">
+                    <strong>Status:</strong>
+                    <span class="{% if rent.status == 'PENDING' %}text-warning{% elif rent.status == 'APPROVED' %}text-success{% else %}text-muted{% endif %}">
+                      {{ rent.status }}
+                    </span>
+                  </p>
+                  <p class="small mb-0 opacity-75">
+                    Requested on {{ rent.request_date|date:"d M Y" }}
+                  </p>
+                </div>
+              {% endif %}
+
+              <hr style="border-color:rgba(255,255,255,0.35);">
+
+              <!-- Author -->
+              <div class="d-flex align-items-center gap-3">
+                <img src="{% if book.author.photo %}{{ book.author.photo.url }}{% else %}/static/assets/img/default-author.png{% endif %}"
+                     class="rounded-circle shadow"
+                     style="width:70px; height:70px; object-fit:cover; border: 2px solid white;">
+                <div>
+                  <p class="text-uppercase small fw-bold mb-0 opacity-75">Author</p>
+                  <h5 class="fw-bold mb-0">{{ book.author.name }}</h5>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+{% endblock %}

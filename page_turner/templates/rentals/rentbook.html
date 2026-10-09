@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<main class="main">
+
+<section class="section position-relative"
+         style="padding-top:120px; min-height:100vh;
+                background:url('/static/images/book-bg-2.jpg') center/cover no-repeat;">
+
+  <!-- Soft overlay -->
+  <div style="position:absolute; inset:0;
+              background:linear-gradient(to right,
+              rgba(0,0,0,0.55),
+              rgba(0,0,0,0.25));"></div>
+
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <div class="row g-5 p-4 p-md-5 mb-5"
+             style="background:rgba(255,255,255,0.18);
+                    backdrop-filter:blur(12px);
+                    -webkit-backdrop-filter:blur(12px);
+                    border:1px solid rgba(255,255,255,0.35);
+                    border-radius:22px;
+                    box-shadow:0 18px 50px rgba(0,0,0,0.35);
+                    color:#1f2933;">
+
+          <div class="col-12 text-center">
+            <h1 class="fw-bold mb-3" style="font-size:42px; color:#1f2933;">
+              Rent Request Submitted 📚
+            </h1>
+
+            <p class="mb-4" style="font-size:18px; color:#374151;">
+              Your request has been sent successfully. Please wait for admin approval.
+            </p>
+
+            <div class="text-start mt-4 mx-auto" style="max-width:420px;">
+              <p><strong>Book:</strong> {{ rent.book.title }}</p>
+              <p><strong>Status:</strong>
+                <span class="badge
+                  {% if rent.status == "PENDING" %}bg-warning text-dark
+                  {% elif rent.status == "APPROVED" %}bg-success
+                  {% elif rent.status == "RETURNED" %}bg-secondary text-white
+                  {% endif %}">
+                  {{ rent.get_status_display }}
+                </span>
+              </p>
+
+              <p><strong>Requested On:</strong> {{ rent.request_date|date:"d M Y, h:i A" }}</p>
+
+              {% if rent.status == "APPROVED" %}
+                <p><strong>Rent Date:</strong> {{ rent.rent_date|date:"d M Y" }}</p>
+                <p><strong>Due Date:</strong> {{ rent.due_date|date:"d M Y" }}</p>
+              {% else %}
+                <p class="text-muted fst-italic">
+                  You’ll see rent & due dates once admin approves your request.
+                </p>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+              <a href="{% url 'my_rents' %}"
+                 class="btn fw-bold shadow"
+                 style="background:#2563eb;color:white;padding:12px 30px;border-radius:10px;">
+                My Rentals
+              </a>
+
+              <a href="{% url 'home' %}"
+                 class="btn fw-bold shadow"
+                 style="background:grey;color:white;padding:12px 30px;border-radius:10px;">
+                Go Home
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+{% endblock %}

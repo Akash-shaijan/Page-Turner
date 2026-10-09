@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block main %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<main class="container py-5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+  
+  <div class="row align-items-end mb-5">
+    <div class="col-md-8">
+      <h1 class="fw-bold text-dark mb-1" style="letter-spacing: -1px;">Member Directory</h1>
+      <p class="text-muted mb-0 fs-5">Overview of registered readers and subscription tiers.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-4 mt-md-0">
+      <div class="d-inline-flex align-items-center bg-white border border-2 shadow-sm px-4 py-3 rounded-4">
+        <div class="me-3 bg-primary p-2 rounded-3 text-white">
+          <i class="bi bi-people-fill fs-4"></i>
+        </div>
+        <div class="text-start">
+          <div class="text-secondary small fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Library Reach</div>
+          <div class="h4 fw-bold mb-0 text-dark">
+            {% if user_data %}{{ user_data|length }}{% else %}0{% endif %} Members
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} border-0 shadow-sm rounded-4 mb-4 py-3" role="alert">
+        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        
+        <thead style="background-color: #0f172a !important; color: #000 ">
+          <tr>
+            <th class="ps-4 py-4 border-0 text-uppercase tracking-widest fw-bolder" style="font-size: 0.8rem; color: #000 ; letter-spacing: 1.5px;">
+              Member Identity
+            </th>
+            <th class="py-4 border-0 text-uppercase tracking-widest fw-bolder text-center" style="font-size: 0.8rem; color: #000 ; letter-spacing: 1.5px;">
+              Subscription Status
+            </th>
+            <th class="py-4 border-0 text-uppercase tracking-widest fw-bolder text-center" style="font-size: 0.8rem; color: #000 ; letter-spacing: 1.5px;">
+              Account Status
+            </th>
+            <th class="pe-4 py-4 border-0 text-uppercase tracking-widest fw-bolder text-end" style="font-size: 0.8rem; color: #000 ; letter-spacing: 1.5px;">
+              Management
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="bg-white">
+          {% for item in user_data %}
+          <tr class="member-row">
+            <td class="ps-4 py-4">
+              <div class="d-flex align-items-center">
+                <div class="avatar-icon me-3">
+                  {{ item.user.email|slice:":1"|upper }}
+                </div>
+                <div>
+                  <div class="fw-bold text-dark fs-6">{{ item.user.email }}</div>
+                  <div class="text-muted small">Joined {{ item.user.date_joined|date:"M d, Y" }}</div>
+                </div>
+              </div>
+            </td>
+
+            <td class="text-center">
+              {% if item.subscription %}
+                <div class="pill-active">
+                  <span class="pulse-dot"></span>
+                  Active till {{ item.subscription.end_date|date:"d M Y" }}
+                </div>
+              {% else %}
+                <div class="pill-inactive">
+                  <i class="bi bi-slash-circle me-1"></i> No Plan
+                </div>
+              {% endif %}
+            </td>
+
+            <td class="text-center">
+              {% if item.user.is_active %}
+                <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3 py-2">Active Member</span>
+              {% else %}
+                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3 py-2">Deactivated</span>
+              {% endif %}
+            </td>
+
+            <td class="pe-4 text-end">
+              {% if item.user.is_active and item.user != request.user %}
+                <form method="post" action="{% url 'users-list' %}" id="deactivate-form-{{ item.user.id }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" value="{{ item.user.id }}">
+                  
+                  <a href="javascript:void(0);" 
+                     class="btn btn-warning-to-danger btn-sm rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-2"
+                     onclick="if(confirm('Are you sure you want to deactivate this user?')) { document.getElementById('deactivate-form-{{ item.user.id }}').submit(); }">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Deactivate</span>
+                  </a>
+                </form>
+              {% elif item.user == request.user %}
+                <span class="text-primary fw-bold small"><i class="bi bi-shield-check"></i> Admin</span>
+              {% else %}
+                <span class="text-muted small">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-5">
+              <div class="py-4 text-muted">No members found in the directory.</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<style>
+  body { background-color: #f8fafc; }
+  
+  .tracking-widest { letter-spacing: 0.12em; }
+
+  /* Avatar Style */
+  .avatar-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #4361ee, #4895ef);
+    color: white; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+  }
+
+  /* Status Pills */
+  .pill-active {
+    display: inline-flex; align-items: center;
+    background: #ecfdf5; color: #065f46;
+    padding: 6px 16px; border-radius: 50px;
+    font-size: 0.8rem; font-weight: 600; border: 1px solid #d1fae5;
+  }
+  .pill-inactive {
+    display: inline-flex; align-items: center;
+    background: #f1f5f9; color: #64748b;
+    padding: 6px 16px; border-radius: 50px;
+    font-size: 0.8rem; font-weight: 600; border: 1px solid #e2e8f0;
+  }
+
+  /* Warning to Danger Button Style */
+  .btn-warning-to-danger {
+    background-color: #ffc107;
+    border: 1px solid #ffc107;
+    color: #000;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .btn-warning-to-danger:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  /* Pulse Animation */
+  .pulse-dot {
+    height: 8px; width: 8px; background: #10b981;
+    border-radius: 50%; margin-right: 8px;
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+
+  .bg-success-subtle { background-color: #dcfce7 !important; }
+  .bg-danger-subtle { background-color: #fee2e2 !important; }
+  .member-row:hover { background-color: #f8faff; transition: background 0.2s; }
+</style>
+{% endblock %}

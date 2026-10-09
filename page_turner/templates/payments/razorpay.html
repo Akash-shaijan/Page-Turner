@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container text-center mt-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h2 class="mt-3">Processing Payment...</h2>
+    <p class="text-muted">Please do not refresh or close this window.</p>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ RZP_KEY_ID }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "Smart Library",
+        "description": "Subscription & Fine Payments",
+        "order_id": "{{ order_id }}",
+        "handler": function (response){
+            var form = document.createElement("form");
+            form.method = "POST";
+            // Updated to match the name in your urls.py
+            form.action = "{% url 'payment_verify' %}";
+
+            var csrfToken = '{{ csrf_token }}';
+
+            // Add CSRF Token
+            var csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "csrfmiddlewaretoken";
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            // Add Razorpay response fields
+            ['razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature'].forEach(key => {
+                var input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = response[key];
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "modal": {
+            "ondismiss": function(){
+                // Redirect back if user cancels payment
+                window.location.replace("{% url 'home' %}");
+            }
+        },
+        "theme": {
+            "color": "#111827"
+        }
+    };
+
+    var rzp1 = new Razorpay(options);
+    
+    // Open the modal automatically on page load
+    window.onload = function() {
+        rzp1.open();
+    };
+</script>
+{% endblock %}

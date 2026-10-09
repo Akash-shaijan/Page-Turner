@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<section class="py-5 bg-white min-vh-100">
+    <div class="container">
+        <h2 class="section-title">Rented Details</h2>
+
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table custom-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Book</th>
+                            <th>Rent Date</th>
+                            <th>Due Date</th>
+                            <th>Return Date</th>
+                            <th>Status</th>
+                            <th>Fine Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for rent in rents %}
+                            {% if rent.status != "REJECTED" %}
+                            <tr>
+                                <td class="text-email">{{ rent.user.email }}</td>
+                                <td class="text-book">{{ rent.book.title }}</td>
+                                <td>{{ rent.rent_date|date:"d M Y" }}</td>
+
+                                <td>
+                                    {% if not rent.return_date and rent.due_date < now %}
+                                        <span class="text-danger fw-bold">
+                                            {{ rent.due_date|date:"d M Y" }}
+                                        </span>
+                                        <span class="badge bg-danger badge-modern ms-1">Overdue</span>
+                                    {% else %}
+                                        {{ rent.due_date|date:"d M Y" }}
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-muted">
+                                    {% if rent.return_date %}
+                                        {{ rent.return_date|date:"d M Y" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if rent.return_date %}
+                                        <span class="badge bg-success badge-modern">Returned</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark badge-modern">Rented</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="fw-bold">
+                                    {% if rent.return_date %}
+                                        <span class="text-dark">₹{{ rent.fine_amount }}</span>
+                                    {% else %}
+                                        {% if rent.due_date < now %}
+                                            <span class="text-danger">₹{{ rent.calculate_fine }}</span>
+                                        {% else %}
+                                            <span class="text-muted">₹0</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if not rent.return_date %}
+                                    <form method="post" action="{% url 'mark_returned' rent.uuid %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-success btn-sm btn-modern">
+                                            Mark Returned ✔
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                        <button class="btn btn-outline-secondary btn-sm btn-modern" disabled>
+                                            Completed
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                No rental records found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .section-title {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #2c2c2c;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Grey container */
+    .table-container {
+        background-color: #f4f5f7;
+        border-radius: 12px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.03), 0 6px 20px rgba(0, 0, 0, 0.06);
+        padding: 12px;
+        border: 1px solid #dcdfe3;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        background-color: transparent;
+    }
+
+    /* Table Header */
+    .custom-table thead th {
+        background-color: #e2e6ea;
+        color: #343a40;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border-top: none;
+        border-bottom: 2px solid #dcdfe3;
+        padding: 15px;
+    }
+
+    /* Table Body with grey background inside details */
+    .custom-table tbody td {
+        padding: 18px 15px;
+        color: #495057;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #dcdfe3;
+        background-color: #f8f9fa; /* Grey inside details */
+    }
+
+    /* Row hover effect */
+    .custom-table tbody tr:hover td {
+        background-color: #eceff1; /* Slightly darker grey on hover */
+    }
+
+    /* Modern Badges & Buttons */
+    .badge-modern {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .btn-modern {
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 6px 16px;
+        transition: all 0.2s ease;
+    }
+
+    .text-email {
+        color: #212529;
+        font-weight: 500;
+    }
+
+    .text-book {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    .btn:focus, .btn:active {
+        box-shadow: none !important;
+    }
+</style>
+{% endblock %}

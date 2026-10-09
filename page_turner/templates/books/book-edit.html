@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<main class="main">
+
+  <section class="section position-relative"
+           style="padding-top:120px;
+                  min-height:100vh;
+                  background:url('/static/images/book-bg-2.jpg') center/cover no-repeat;">
+
+    <!-- Soft overlay -->
+    <div style="position:absolute; inset:0;
+                background:linear-gradient(to right,
+                rgba(0,0,0,0.55),
+                rgba(0,0,0,0.25));"></div>
+
+    <div class="container position-relative">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+          <!-- GLASS CARD -->
+          <div class="card shadow-lg border-0 rounded-4"
+               style="background:rgba(255,255,255,0.18);
+                      backdrop-filter:blur(12px);
+                      -webkit-backdrop-filter:blur(12px);
+                      border:1px solid rgba(255,255,255,0.35);">
+
+            <div class="card-body p-4 p-md-5">
+
+              <h3 class="text-center mb-4 fw-bold"
+                  style="color:#1f2933;">
+                {{ page }}
+              </h3>
+
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                  <!-- Book Title -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Book Title</label>
+                    {{ form.title }}
+                    <small class="text-muted">Enter the full book title</small>
+                    {% if form.title.errors %}
+                      <p class="small text-danger">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Author -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Author</label>
+                    {{ form.author }}
+                    <small class="text-muted">Select the author</small>
+                    {% if form.author.errors %}
+                      <p class="small text-danger">{{ form.author.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Genres -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Genres</label>
+                    {{ form.genres }}
+                    <small class="text-muted">You can select multiple genres</small>
+                    {% if form.genres.errors %}
+                      <p class="small text-danger">{{ form.genres.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Language -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Language</label>
+                    {{ form.language }}
+                    <small class="text-muted">Choose book language</small>
+                    {% if form.language.errors %}
+                      <p class="small text-danger">{{ form.language.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-md-12">
+                    <label class="form-label fw-semibold">Description</label>
+                    {{ form.description }}
+                    <small class="text-muted">Brief summary about the book</small>
+                    {% if form.description.errors %}
+                      <p class="small text-danger">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Digital Version -->
+                  <div class="col-md-6">
+                    <div class="form-check mt-3">
+                      {{ form.has_digital }}
+                      <label class="form-check-label fw-semibold">
+                        Digital Version Available
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Digital File -->
+                  <div class="col-md-6" id="digital-file-wrapper">
+                    <label class="form-label fw-semibold">Digital File</label>
+                    {{ form.digital_file }}
+                    <small class="text-muted">
+                      Upload PDF / EPUB file
+                    </small>
+                    {% if form.digital_file.errors %}
+                      <p class="small text-danger">{{ form.digital_file.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Physical Version -->
+                  <div class="col-md-6">
+                    <div class="form-check mt-3">
+                      {{ form.has_physical }}
+                      <label class="form-check-label fw-semibold">
+                        Physical Copy Available
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Total Copies -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Total Copies</label>
+                    {{ form.total_copies }}
+                    <small class="text-muted">
+                      Number of physical copies in library
+                    </small>
+                    {% if form.total_copies.errors %}
+                      <p class="small text-danger">{{ form.total_copies.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+                  <!-- available copies -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Available Copies</label>
+                    {{ form.available_copies}}
+                    <small class="text-muted">
+                      Number of available copies in library
+                    </small>
+                    {% if form.available_copies.errors %}
+                      <p class="small text-danger">{{ form.available_copies.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+
+                  <!-- Cover Image -->
+                  <div class="col-md-12">
+                <label class="form-label fw-semibold">Book Cover Image</label>
+
+                <!-- SHOW CURRENT IMAGE -->
+                {% if form.instance.cover_image %}
+                    <div class="mb-3">
+                    <img src="{{ form.instance.cover_image.url }}"
+                        alt="Current Cover"
+                        class="img-fluid"
+                        style="max-width: 180px; border-radius: 10px;">
+                    </div>
+                {% endif %}
+
+                {{ form.cover_image }}
+
+                <small class="text-muted">
+                    Upload a clear book cover image (JPG / PNG)
+                </small>
+
+                {% if form.cover_image.errors %}
+                    <p class="small text-danger">{{ form.cover_image.errors.0 }}</p>
+                {% endif %}
+                </div>
+
+
+                  <!-- Submit Button -->
+                  <div class="col-md-12 text-center mt-3">
+                    <button type="submit"
+                      class="btn btn-dark px-5 py-2 rounded-pill">
+                      Update Book
+                    </button>
+                  </div>
+
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Digital file toggle -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hasDigital = document.getElementById("id_has_digital");
+    const digitalWrapper = document.getElementById("digital-file-wrapper");
+
+    function toggleDigitalFile() {
+      digitalWrapper.style.display = hasDigital.checked ? "block" : "none";
+    }
+
+    toggleDigitalFile();
+    hasDigital.addEventListener("change", toggleDigitalFile);
+  });
+</script>
+
+{% endblock %}
